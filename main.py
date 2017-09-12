@@ -5,11 +5,12 @@ import graphical_interface
 
 
 def main():
+	'''
 	if (database_connect() == 0):
 		print("DATABASE_ERROR: unable to connect to database\n")
 		return -1
-
-	GUI_init()
+'''
+	graphical_interface.init()
 	
 
 main()
