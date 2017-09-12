@@ -36,7 +36,6 @@ def init():
 	project_list.append(["project 2"])
 	project_list.append(["project 3"])
 	project_list.append(["project 4"])
-	project_box.set_entry_text_column(1)
 
 	renderer_text = Gtk.CellRendererText()
 	project_box.pack_start(renderer_text, True)
