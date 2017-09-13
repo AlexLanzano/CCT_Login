@@ -2,8 +2,10 @@ import MySQLdb
 import time
 
 def table_exists():
-	db.cursor.execute("SHOW TABLES LIKE TIMESHEET")
-	if db.cursor.fetchone():
+	cursor = db.cursor()
+	cursor.execute("SHOW TABLES LIKE 'TIMESHEET'")
+	result = cursor.fetchone()
+	if result:
 		return True
 	else:
 		return False
@@ -24,7 +26,7 @@ def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or
 	(student_id, first_name, last_name, timestamp, project, in_or_out)
 
 	try:
-		db.cursor.execute(command)
+		db.cursor().execute(command)
 		db.commit()
 	except:
 		# display error
@@ -40,6 +42,7 @@ def is_checkedin(student_id):
 		return True
 
 def init():
+	global db
 	sql_config = open("sql.conf", "r")
 	host = sql_config.readline().rstrip()
 	user = sql_config.readline().rstrip()
@@ -63,7 +66,7 @@ def init():
                      PROJECT CHAR(50) NOT NULL,
                      IN_OR_OUT CHAR(4) NOT NULL
                      )"""
-	
+
 		cursor.execute(command)
-		
+
 	return True
