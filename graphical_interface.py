@@ -22,13 +22,13 @@ def GUI_handle_checkout_button(button):
 	
 def init():
 	# Define widgets
-	win = Gtk.Window() # Establish window
+	win = Gtk.Window() 
 	widget_grid = Gtk.Grid()
 	input_box = Gtk.Entry()
 	project_list = Gtk.ListStore(str)
 	project_box = Gtk.ComboBox.new_with_model(project_list)
-	checkin_button = Gtk.Button.new_with_label("Check In") # Creates checkin button
-	checkout_button = Gtk.Button.new_with_label("Check Out") # Creates checkout button
+	checkin_button = Gtk.Button.new_with_label("Check In")
+	checkout_button = Gtk.Button.new_with_label("Check Out")
 
 	# Setup project list
 	# todo: grab project names from text file or database
@@ -37,6 +37,7 @@ def init():
 	project_list.append(["project 3"])
 	project_list.append(["project 4"])
 
+	# This puts the text on the combo box
 	renderer_text = Gtk.CellRendererText()
 	project_box.pack_start(renderer_text, True)
 	project_box.add_attribute(renderer_text, "text", 0)
@@ -47,7 +48,8 @@ def init():
 	widget_grid.attach(project_box, 0, 1, 15, 2)
 	widget_grid.attach(checkin_button, 0, 3, 5, 4)
 	widget_grid.attach(checkout_button, 5, 3, 10, 4)
-	
+
+	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
 	checkin_button.connect("clicked", GUI_handle_checkin_button) # handles button press event
 	checkout_button.connect("clicked", GUI_handle_checkout_button) # handles button press event
