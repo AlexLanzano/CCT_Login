@@ -1,16 +1,32 @@
 import database_interface
 import gi
+import time
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
-def GUI_handle_checkin_button(button):
-	# todo:
-	# Check if input box is empty (they didn't swipe their card); print error if empty
-	# Get name from input box
-	# Check if name is already checked in ; print error if checked in
-	# Send checkin timestamp to database
-	print("Checked in!")
+global input_box
 
+def GUI_handle_checkin_button(button):
+	scan_input = input_box.get_input()
+	if (scan_input == ""):
+		print("INPUT ERROR: Please swipe your card and try again.")
+		return -1
+
+	student_id = "test"
+	first_name = "test"
+	last_name = "test"
+	timestamp = time.ctime()
+	project = "project 1"
+	in_or_out = "IN"
+
+	if (database_interface.is_checkedin(student_id)):
+		print("DATABASE ERROR: You are already checked in.")
+		return -1
+
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+
+	print("Checked in!")
+	return 0
 
 def GUI_handle_checkout_button(button):
 	# todo:
@@ -28,15 +44,19 @@ def init():
 	s_height = s.get_height()
 	widget_grid = Gtk.Grid(column_homogeneous = False, row_homogeneous = False, row_spacing = 25, column_spacing = 50)
 	widget_fixed = Gtk.Fixed() # Testing out fixed container rather than grid
+
 	input_box = Gtk.Entry()
 	input_box.set_visibility(False)
 	input_box.set_margin_bottom(20)
+
 	project_list = Gtk.ListStore(str)
 	project_box = Gtk.ComboBox.new_with_model(project_list)
 	project_box.set_margin_top(s_height/64)
+
 	checkin_button = Gtk.Button.new_with_label("Check In")
 	checkin_button.set_margin_top(s_height/24)
 	checkin_button.set_margin_left(s_width/16)
+
 	checkout_button = Gtk.Button.new_with_label("Check Out")
 	checkout_button.set_margin_top(s_height/24)
 	checkout_button.set_margin_left(s_width/16)
