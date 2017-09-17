@@ -29,12 +29,27 @@ def GUI_handle_checkin_button(button):
 	return 0
 
 def GUI_handle_checkout_button(button):
-	# todo:
-	# Check if input box is empty ; print error if empty
-	# Get name from input box
-	# Check if name is checked in ; print error if not checked in
-	# Store checkout time in db
-	print("Checked out!")
+	scan_input = input_box.get_input()
+        if (scan_input == ""):
+                print("INPUT ERROR: Please swipe your card and try again.")
+                return -1
+
+        student_id = "test"
+        first_name = "test"
+        last_name = "test"
+        timestamp = time.ctime()
+        project = "project 1"
+        in_or_out = "OUT"
+
+        if (database_interface.is_checkedout(student_id)):
+                print("DATABASE ERROR: You are already checked out.")
+                return -1
+
+        database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+
+        print("Checked out!")
+        return 0
+
 
 def init():
 	# Define widgets
