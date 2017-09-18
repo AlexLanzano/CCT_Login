@@ -6,9 +6,12 @@ from gi.repository import Gtk, Gdk
 
 def get_project_text():
 	index = project_box.get_active()
+	model = project_box.get_model()
 	if (index == -1):
 		return ""
-	return project_list[index]
+	item = model[index]
+	project = item[0]
+	return project
 
 
 def split_scan_input(scan_input):
@@ -30,9 +33,6 @@ def GUI_handle_checkin_button(button):
 		return -1
 
 	student_id, first_name, last_name = split_scan_input(scan_input)
-	print(student_id)
-	print(first_name)
-	print(last_name)
 	timestamp = time.ctime()
 	in_or_out = "IN"
 
@@ -58,13 +58,10 @@ def GUI_handle_checkout_button(button):
 		return -1
 
 	student_id, first_name, last_name = split_scan_input(scan_input)
-	print(student_id)
-	print(first_name)
-	print(last_name)
 	timestamp = time.ctime()
 	in_or_out = "OUT"
 
-	if (database_interface.is_checkedout(student_id)):
+	if (database_interface.is_checkedin(student_id) == False):
 		print("DATABASE ERROR: You are already checked out.")
 		return -1
 

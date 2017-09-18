@@ -11,25 +11,23 @@ def table_exists():
 		return False
 
 def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out):
-	# todo:
-	if (is_checkedin(student_id)):
-		return
+	cursor = db.cursor()
 	timestamp = time.ctime()
-	command = "INSERT INTO TIMESHEET ( \
-               STUDENT_ID, \
-               FIRST_NAME, \
-               LAST_NAME, \
-               TIMESTAMP, \
-               PROJECT, \
-               IN_OR_OUT) \
-               VALUES ('%s', '%s', '%s', '%s', '%s' '%s')" % \
-	(student_id, first_name, last_name, timestamp, project, in_or_out)
+	command = """INSERT INTO TIMESHEET (
+               STUDENT_ID,
+               FIRST_NAME,
+               LAST_NAME,
+               TIMESTAMP,
+               PROJECT,
+               IN_OR_OUT)
+               VALUES ("%s", "%s", "%s", "%s", "%s", "%s")""" % (student_id, first_name, last_name, timestamp, project, in_or_out)
 
+	print(command)
 	try:
-		db.cursor().execute(command)
+		cursor.execute(command)
 		db.commit()
 	except:
-		# display error
+		print("DATABASE ERROR: Failed to store data in database.")
 		db.rollback()
 
 def is_checkedin(student_id):
