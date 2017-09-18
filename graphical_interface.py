@@ -4,19 +4,36 @@ import time
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
-global input_box
+def get_project_text():
+	index = project_box.get_active()
+	if (index == -1):
+		return ""
+	return project_list[index]
+
+
+def split_scan_input(scan_input):
+	scan_input = scan_input[2:]
+	student_id, full_name, tmp = scan_input.split('^')
+	last_name, first_name = full_name.split('/')
+	return student_id, first_name, last_name
 
 def GUI_handle_checkin_button(button):
-	scan_input = input_box.get_input()
+	scan_input = input_box.get_text()
+	project = get_project_text()
+
 	if (scan_input == ""):
 		print("INPUT ERROR: Please swipe your card and try again.")
 		return -1
 
-	student_id = "test"
-	first_name = "test"
-	last_name = "test"
+	if (project == ""):
+		print("INPUT ERROR: Please select a project and try again.")
+		return -1
+
+	student_id, first_name, last_name = split_scan_input(scan_input)
+	print(student_id)
+	print(first_name)
+	print(last_name)
 	timestamp = time.ctime()
-	project = "project 1"
 	in_or_out = "IN"
 
 	if (database_interface.is_checkedin(student_id)):
@@ -29,29 +46,39 @@ def GUI_handle_checkin_button(button):
 	return 0
 
 def GUI_handle_checkout_button(button):
-	scan_input = input_box.get_input()
-        if (scan_input == ""):
-                print("INPUT ERROR: Please swipe your card and try again.")
-                return -1
+	scan_input = input_box.get_text()
+	project = get_project_text()
 
-        student_id = "test"
-        first_name = "test"
-        last_name = "test"
-        timestamp = time.ctime()
-        project = "project 1"
-        in_or_out = "OUT"
+	if (scan_input == ""):
+		print("INPUT ERROR: Please swipe your card and try again.")
+		return -1
 
-        if (database_interface.is_checkedout(student_id)):
-                print("DATABASE ERROR: You are already checked out.")
-                return -1
+	if (project == ""):
+		print("INPUT ERROR: Please select a project and try again.")
+		return -1
 
-        database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+	student_id, first_name, last_name = split_scan_input(scan_input)
+	print(student_id)
+	print(first_name)
+	print(last_name)
+	timestamp = time.ctime()
+	in_or_out = "OUT"
 
-        print("Checked out!")
-        return 0
+	if (database_interface.is_checkedout(student_id)):
+		print("DATABASE ERROR: You are already checked out.")
+		return -1
+
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+
+	print("Checked out!")
+	return 0
 
 
 def init():
+	global input_box
+	global project_box
+	global project_list
+
 	# Define widgets
 	win = Gtk.Window()
 	s = Gdk.Screen.get_default()

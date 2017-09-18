@@ -33,9 +33,10 @@ def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or
 		db.rollback()
 
 def is_checkedin(student_id):
+	cursor = db.cursor()
 	command = "SELECT * FROM TIMESHEET WHERE STUDENT_ID = '%s'" % (student_id)
-	db.cursor.execute(command)
-	length = len(db.cursor.fetchall())
+	cursor.execute(command)
+	length = len(cursor.fetchall())
 	if (length % 2 == 0):
 		return False
 	else:
@@ -48,10 +49,6 @@ def init():
 	user = sql_config.readline().rstrip()
 	password = sql_config.readline().rstrip()
 	name = sql_config.readline().rstrip()
-	print(host)
-	print(user)
-	print(password)
-	print(name)
 	try:
 		db = MySQLdb.connect(host, user, password, name)
 	except MySQLdb.Error:
