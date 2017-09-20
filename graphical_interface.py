@@ -70,12 +70,30 @@ def GUI_handle_checkout_button(button):
 	print("Checked out!")
 	return 0
 
+def gtk_style():
+	css=b"""
+GtkWindow{
+	background-color: #870911;
+}
+
+GtkComboBox{
+	background-color: #ffffff;
+}
+GtkButton{
+	background-color: #ffffff;
+}
+	"""
+	style_provider = Gtk.CssProvider()
+	style_provider.load_from_data(css)
+
+	Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),style_provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 def init():
 	global input_box
 	global project_box
 	global project_list
 
+	gtk_style()
 	# Define widgets
 	win = Gtk.Window()
 	s = Gdk.Screen.get_default()
