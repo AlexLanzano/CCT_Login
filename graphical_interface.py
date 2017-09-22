@@ -4,6 +4,11 @@ import time
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
+def append_projects(project_list):
+	projects_file = open("projects.txt", "r")
+	for line in projects_file:
+		project_list.append([line])
+
 def get_project_text():
 	index = project_box.get_active()
 	model = project_box.get_model()
@@ -120,10 +125,11 @@ def init():
 
 	# Setup project list
 	# todo: grab project names from text file or database
-	project_list.append(["project 1"])
-	project_list.append(["project 2"])
-	project_list.append(["project 3"])
-	project_list.append(["project 4"])
+	append_projects(project_list)
+	#project_list.append(["project 1"])
+	#project_list.append(["project 2"])
+	#project_list.append(["project 3"])
+	#project_list.append(["project 4"])
 
 	# This puts the text on the combo box
 	renderer_text = Gtk.CellRendererText()
