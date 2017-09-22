@@ -48,6 +48,7 @@ def GUI_handle_checkin_button(button):
 	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
 
 	print("Checked in!")
+	input_box.set_text("")
 	return 0
 
 def GUI_handle_checkout_button(button):
@@ -71,7 +72,8 @@ def GUI_handle_checkout_button(button):
 		return -1
 
 	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
-
+	
+	input_box.set_text("")
 	print("Checked out!")
 	return 0
 
@@ -110,6 +112,7 @@ def init():
 	input_box = Gtk.Entry()
 	input_box.set_visibility(False)
 	input_box.set_margin_bottom(20)
+	input_box.set_placeholder_text("Swipe your ID")
 
 	project_list = Gtk.ListStore(str)
 	project_box = Gtk.ComboBox.new_with_model(project_list)
@@ -140,8 +143,8 @@ def init():
 
 	win.add(widget_fixed)
 	widget_fixed.put(widget_grid, (s_width/2) - (s_width/8), s_height/2)
-	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/800)
-	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/800)
+	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/450)
+	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/450)
 	widget_grid.attach(checkin_button, 0, 2, (s_width/400), s_height/450)
 	widget_grid.attach(checkout_button, 3, 2, (s_width/400), s_height/450)
 
@@ -152,4 +155,5 @@ def init():
 
 	win.fullscreen() # Automatically sets the window as fullscreen
 	win.show_all()
+	checkin_button.grab_focus()
 	Gtk.main() # This is the main loop that handles all the events above
