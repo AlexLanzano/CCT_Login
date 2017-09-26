@@ -72,10 +72,16 @@ def GUI_handle_checkout_button(button):
 		return -1
 
 	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
-	
+
 	input_box.set_text("")
 	print("Checked out!")
 	return 0
+
+def GUI_handle_manual_entry_button(button):
+	timein = manual_timein.get_text()
+	timeout = manual_timeout.get_text()
+	date = manual_timeout.get_text()
+
 
 def gtk_style():
 	css=b"""
@@ -99,6 +105,9 @@ def init():
 	global input_box
 	global project_box
 	global project_list
+	global manual_timein
+	global manual_timeout
+	global manual_date
 
 	gtk_style()
 	# Define widgets
@@ -126,13 +135,23 @@ def init():
 	checkout_button.set_margin_top(s_height/24)
 	checkout_button.set_margin_left(s_width/16)
 
+	manual_timein = Gtk.Entry()
+	manual_timein.set_placeholder_text("Time In: 00:00am/pm")
+
+	manual_timeout = Gtk.Entry()
+	manual_timeout.set_placeholder_text("Time Out: 00:00am/pm")
+
+	manual_date = Gtk.Entry()
+	manual_date.set_placeholder_text("Date: dd/mm/yyyy")
+
+	manual_entry_button = Gtk.Button.new_with_label("Manual Entry")
+	checkout_button.set_margin_top(s_height/24)
+	checkout_button.set_margin_left(s_width/16)
+
+
+
 	# Setup project list
-	# todo: grab project names from text file or database
 	append_projects(project_list)
-	#project_list.append(["project 1"])
-	#project_list.append(["project 2"])
-	#project_list.append(["project 3"])
-	#project_list.append(["project 4"])
 
 	# This puts the text on the combo box
 	renderer_text = Gtk.CellRendererText()
@@ -140,13 +159,16 @@ def init():
 	project_box.add_attribute(renderer_text, "text", 0)
 
 	# Setup where buttons and input boxes on screen
-
 	win.add(widget_fixed)
 	widget_fixed.put(widget_grid, (s_width/2) - (s_width/8), s_height/2)
 	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/450)
 	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/450)
 	widget_grid.attach(checkin_button, 0, 2, (s_width/400), s_height/450)
 	widget_grid.attach(checkout_button, 3, 2, (s_width/400), s_height/450)
+	widget_grid.attach(manual_timein, 0, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_timeout, 4, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_date, 8, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_entry_button, 4, 5, s_width/400, s_height/450)
 
 	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
