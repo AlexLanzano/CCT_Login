@@ -121,11 +121,13 @@ def init():
 	input_box = Gtk.Entry()
 	input_box.set_visibility(False)
 	input_box.set_margin_bottom(20)
+	input_box.set_margin_right(s_width/24)
 	input_box.set_placeholder_text("Swipe your ID")
 
 	project_list = Gtk.ListStore(str)
 	project_box = Gtk.ComboBox.new_with_model(project_list)
 	project_box.set_margin_top(s_height/64)
+	project_box.set_margin_right(s_width/24)
 
 	checkin_button = Gtk.Button.new_with_label("Check In")
 	checkin_button.set_margin_top(s_height/24)
@@ -133,7 +135,8 @@ def init():
 
 	checkout_button = Gtk.Button.new_with_label("Check Out")
 	checkout_button.set_margin_top(s_height/24)
-	checkout_button.set_margin_left(s_width/16)
+	checkout_button.set_margin_left(s_width/14)
+
 
 	manual_timein = Gtk.Entry()
 	manual_timein.set_placeholder_text("Time In: 00:00am/pm")
@@ -143,12 +146,10 @@ def init():
 
 	manual_date = Gtk.Entry()
 	manual_date.set_placeholder_text("Date: dd/mm/yyyy")
+	#manual_date.set_alignment(1)
 
 	manual_entry_button = Gtk.Button.new_with_label("Manual Entry")
-	checkout_button.set_margin_top(s_height/24)
-	checkout_button.set_margin_left(s_width/16)
-
-
+	manual_entry_button.set_margin_right(s_width/11)
 
 	# Setup project list
 	append_projects(project_list)
@@ -160,15 +161,15 @@ def init():
 
 	# Setup where buttons and input boxes on screen
 	win.add(widget_fixed)
-	widget_fixed.put(widget_grid, (s_width/2) - (s_width/8), s_height/2)
+	widget_fixed.put(widget_grid, (s_width/2) - (s_width/5), s_height/2)
 	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/450)
 	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/450)
 	widget_grid.attach(checkin_button, 0, 2, (s_width/400), s_height/450)
-	widget_grid.attach(checkout_button, 3, 2, (s_width/400), s_height/450)
-	widget_grid.attach(manual_timein, 0, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_timeout, 4, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_date, 8, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_entry_button, 4, 5, s_width/400, s_height/450)
+	widget_grid.attach(checkout_button, 2, 2, (s_width/400), s_height/450)
+	widget_grid.attach(manual_timein, 0, 4, s_width/600, s_height/450)
+	widget_grid.attach(manual_timeout, 2, 4, s_width/600, s_height/450)
+	widget_grid.attach(manual_date, 4, 4, s_width/600, s_height/450)
+	widget_grid.attach(manual_entry_button, 2, 6, s_width/400, s_height/450)
 
 	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
