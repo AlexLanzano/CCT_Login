@@ -3,6 +3,8 @@ import gi
 import time
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
+import datetime
+
 
 def append_projects(project_list):
 	projects_file = open("projects.txt", "r")
@@ -38,14 +40,13 @@ def GUI_handle_checkin_button(button):
 		return -1
 
 	student_id, first_name, last_name = split_scan_input(scan_input)
-	timestamp = time.ctime()
 	in_or_out = "IN"
 
 	if (database_interface.is_checkedin(student_id)):
 		print("DATABASE ERROR: You are already checked in.")
 		return -1
 
-	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
 
 	print("Checked in!")
 	input_box.set_text("")
@@ -64,24 +65,56 @@ def GUI_handle_checkout_button(button):
 		return -1
 
 	student_id, first_name, last_name = split_scan_input(scan_input)
-	timestamp = time.ctime()
 	in_or_out = "OUT"
 
 	if (database_interface.is_checkedin(student_id) == False):
 		print("DATABASE ERROR: You are already checked out.")
 		return -1
 
-	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
 
 	input_box.set_text("")
 	print("Checked out!")
 	return 0
 
 def GUI_handle_manual_entry_button(button):
-	timein = manual_timein.get_text()
-	timeout = manual_timeout.get_text()
-	date = manual_timeout.get_text()
+	scan_input = input_box.get_text()
+	project = get_project_text()
+	timein_input = manual_timein.get_text()
+	timeout_input = manual_timeout.get_text()
+	date = manual_date.get_text()
 
+	if (scan_input == ""):
+		print("INPUT ERROR: Please swipe your card and try again")
+		return -1
+	if (project == ""):
+		print("INPUT ERROR: Please select a project and try again")
+		return -1
+	if (timein_input == ""):
+		print("INPUT ERROR: Please set the time you checked in and try again")
+		return -1
+	if (timeout_input == ""):
+		print("INPUT ERROR: Please set the time you checked out and try again")
+		return -1
+	if (date == ""):
+		print("INPUT ERROR: Please set the date and try again")
+		return -1
+
+	student_id, first_name, last_name = split_scan_input(scan_input)
+	if (student_id == "" or first_name == "" or last_name == ""):
+		print("INPUT ERROR: Input read from card swipe is invalid, please clear the input field and try again")
+		return -1
+
+	time_in = datetime.datetime.strptime(timein_input, "%I:%M%p").strftime("%H:%M:00")
+	time_out = datetime.datetime.strptime(timeout_input, "%I:%M%p").strftime("%H:%M:00")
+	day, month, year = date.split("/")
+	timestamp_in = "%s-%s-%s %s" % (year, month, day, time_in)
+	timestamp_out = "%s-%s-%s %s" % (year, month, day, time_out)
+	print(timestamp_in)
+	print(timestamp_out)
+
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp_in, project, "IN")
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp_out, project, "OUT")
 
 def gtk_style():
 	css=b"""
@@ -174,8 +207,10 @@ def init():
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
 	checkin_button.connect("clicked", GUI_handle_checkin_button) # handles button press event
 	checkout_button.connect("clicked", GUI_handle_checkout_button) # handles button press event
+	manual_entry_button.connect("clicked", GUI_handle_manual_entry_button) # handles button press event
 
-	win.fullscreen() # Automatically sets the window as fullscreen
+
+	#win.fullscreen() # Automatically sets the window as fullscreen
 	win.show_all()
 	checkin_button.grab_focus()
 	Gtk.main() # This is the main loop that handles all the events above
