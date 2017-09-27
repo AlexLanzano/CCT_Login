@@ -35,7 +35,7 @@ def split_scan_input(scan_input):
 	last_name, first_name = full_name.split('/')
 	return student_id, first_name, last_name
 
-def GUI_handle_checkin_button(button):
+def GUI_handle_check_in_out_buttons(button, in_or_out):
 	scan_input = input_box.get_text()
 	project = get_project_text()
 
@@ -51,46 +51,24 @@ def GUI_handle_checkin_button(button):
 		student_id, first_name, last_name = split_scan_input(scan_input)
 	except:
 		set_message_label("INPUT ERROR: Invalid input from card reader. Reswipe your card and try again")
-		return -1
-	in_or_out = "IN"
-
-	if (database_interface.is_checkedin(student_id)):
-		set_message_label("DATABASE ERROR: You are already checked in.")
+		input_box.set_text("")
 		return -1
 
-	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
-
-	set_message_label("Checked in!")
-	input_box.set_text("")
-	return 0
-
-def GUI_handle_checkout_button(button):
-	scan_input = input_box.get_text()
-	project = get_project_text()
-
-	if (scan_input == ""):
-		set_message_label("INPUT ERROR: Please swipe your card and try again.")
-		return -1
-
-	if (project == ""):
-		set_message_label("INPUT ERROR: Please select a project and try again.")
-		return -1
-
-	try:
-		student_id, first_name, last_name = split_scan_input(scan_input)
-	except:
-		set_message_label("INPUT ERROR: Invalid input from card reader. Reswipe your card and try again")
-		return -1
-	in_or_out = "OUT"
-
-	if (database_interface.is_checkedin(student_id) == False):
+	response = database_interface.is_checkedin(student_id)
+	if (response == -1):
+		GUI_handle_checkout_button(button);
+	if (response == False):
 		set_message_label("DATABASE ERROR: You are already checked out.")
 		return -1
 
 	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
 
 	input_box.set_text("")
-	set_message_label("Checked out!")
+
+	if (in_or_out == "IN"):
+		set_message_label("Checked in!")
+	if (in_or_out == "OUT"):
+		set_message_label("Checked out!")
 	return 0
 
 def GUI_handle_manual_entry_button(button):
@@ -119,6 +97,7 @@ def GUI_handle_manual_entry_button(button):
 	student_id, first_name, last_name = split_scan_input(scan_input)
 	if (student_id == "" or first_name == "" or last_name == ""):
 		set_message_label("INPUT ERROR: Input read from card swipe is invalid, please clear the input field and try again")
+		input_box.set_text("")
 		return -1
 
 	time_in = datetime.datetime.strptime(timein_input, "%I:%M%p").strftime("%H:%M:00")
@@ -221,11 +200,11 @@ def init():
 
 	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
-	checkin_button.connect("clicked", GUI_handle_checkin_button) # handles button press event
-	checkout_button.connect("clicked", GUI_handle_checkout_button) # handles button press event
+	checkin_button.connect("clicked", GUI_handle_check_in_out_buttons, "IN") # handles button press event
+	checkout_button.connect("clicked", GUI_handle_check_in_out_buttons, "OUT") # handles button press event
 	manual_entry_button.connect("clicked", GUI_handle_manual_entry_button) # handles button press event
 
-	#win.fullscreen() # Automatically sets the window as fullscreen
+	win.fullscreen() # Automatically sets the window as fullscreen
 	win.show_all()
 	checkin_button.grab_focus()
 
