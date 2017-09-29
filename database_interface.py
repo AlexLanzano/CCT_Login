@@ -2,43 +2,55 @@ import MySQLdb
 import time
 
 def table_exists():
-	cursor = db.cursor()
-	cursor.execute("SHOW TABLES LIKE 'TIMESHEET'")
-	result = cursor.fetchone()
-	if result:
-		return True
-	else:
-		return False
+	try:
+		cursor = db.cursor()
+		cursor.execute("SHOW TABLES LIKE 'TIMESHEET'")
+		result = cursor.fetchone()
+		if result:
+			return True
+		else:
+			return False
+	except:
+		init()
 
 def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out):
-	cursor = db.cursor()
-	timestamp = time.ctime()
-	command = """INSERT INTO TIMESHEET (
-               STUDENT_ID,
-               FIRST_NAME,
-               LAST_NAME,
-               TIMESTAMP,
-               PROJECT,
-               IN_OR_OUT)
-               VALUES ("%s", "%s", "%s", "%s", "%s", "%s")""" % (student_id, first_name, last_name, timestamp, project, in_or_out)
-
-	print(command)
 	try:
-		cursor.execute(command)
-		db.commit()
+		cursor = db.cursor()
+		timestamp = time.ctime()
+		command = """INSERT INTO TIMESHEET (
+                     STUDENT_ID,
+                     FIRST_NAME,
+                     LAST_NAME,
+                     TIMESTAMP,
+                     PROJECT,
+                     IN_OR_OUT)
+                     VALUES ("%s", "%s", "%s", "%s", "%s", "%s")""" % (student_id, first_name, last_name, timestamp, project, in_or_out)
+
+		print(command)
+		try:
+			cursor.execute(command)
+			db.commit()
+		except:
+			print("DATABASE ERROR: Failed to store data in database.")
+			db.rollback()
+
 	except:
-		print("DATABASE ERROR: Failed to store data in database.")
-		db.rollback()
+		init()
+		store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
 
 def is_checkedin(student_id):
-	cursor = db.cursor()
-	command = "SELECT * FROM TIMESHEET WHERE STUDENT_ID = '%s'" % (student_id)
-	cursor.execute(command)
-	length = len(cursor.fetchall())
-	if (length % 2 == 0):
-		return False
-	else:
-		return True
+	try:
+		cursor = db.cursor()
+		command = "SELECT * FROM TIMESHEET WHERE STUDENT_ID = '%s'" % (student_id)
+		cursor.execute(command)
+		length = len(cursor.fetchall())
+		if (length % 2 == 0):
+			return False
+		else:
+			return True
+	except:
+		init()
+		return -1
 
 def init():
 	global db
@@ -47,6 +59,7 @@ def init():
 	user = sql_config.readline().rstrip()
 	password = sql_config.readline().rstrip()
 	name = sql_config.readline().rstrip()
+	sql_config.close()
 	try:
 		db = MySQLdb.connect(host, user, password, name)
 	except MySQLdb.Error:

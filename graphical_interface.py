@@ -3,6 +3,16 @@ import gi
 import time
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
+import datetime
+import threading
+
+def reset_message_label():
+	message_label.set_text("")
+
+def set_message_label(message):
+	reset_message_label_thread = threading.Timer(5.0, reset_message_label)
+	message_label.set_text(message)
+	reset_message_label_thread.start()
 
 def append_projects(project_list):
 	projects_file = open("projects.txt", "r")
@@ -25,63 +35,79 @@ def split_scan_input(scan_input):
 	last_name, first_name = full_name.split('/')
 	return student_id, first_name, last_name
 
-def GUI_handle_checkin_button(button):
+def GUI_handle_check_in_out_buttons(button, in_or_out):
 	scan_input = input_box.get_text()
 	project = get_project_text()
 
 	if (scan_input == ""):
-		print("INPUT ERROR: Please swipe your card and try again.")
+		set_message_label("INPUT ERROR: Please swipe your card and try again.")
 		return -1
 
 	if (project == ""):
-		print("INPUT ERROR: Please select a project and try again.")
+		set_message_label("INPUT ERROR: Please select a project and try again.")
 		return -1
 
-	student_id, first_name, last_name = split_scan_input(scan_input)
-	timestamp = time.ctime()
-	in_or_out = "IN"
-
-	if (database_interface.is_checkedin(student_id)):
-		print("DATABASE ERROR: You are already checked in.")
+	try:
+		student_id, first_name, last_name = split_scan_input(scan_input)
+	except:
+		set_message_label("INPUT ERROR: Invalid input from card reader. Reswipe your card and try again")
+		input_box.set_text("")
 		return -1
 
-	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
-
-	print("Checked in!")
-	input_box.set_text("")
-	return 0
-
-def GUI_handle_checkout_button(button):
-	scan_input = input_box.get_text()
-	project = get_project_text()
-
-	if (scan_input == ""):
-		print("INPUT ERROR: Please swipe your card and try again.")
+	response = database_interface.is_checkedin(student_id)
+	if (response == -1):
+		GUI_handle_checkout_button(button);
+	if (response == False):
+		set_message_label("DATABASE ERROR: You are already checked out.")
 		return -1
 
-	if (project == ""):
-		print("INPUT ERROR: Please select a project and try again.")
-		return -1
-
-	student_id, first_name, last_name = split_scan_input(scan_input)
-	timestamp = time.ctime()
-	in_or_out = "OUT"
-
-	if (database_interface.is_checkedin(student_id) == False):
-		print("DATABASE ERROR: You are already checked out.")
-		return -1
-
-	database_interface.store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
+	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
 
 	input_box.set_text("")
-	print("Checked out!")
+
+	if (in_or_out == "IN"):
+		set_message_label("Checked in!")
+	if (in_or_out == "OUT"):
+		set_message_label("Checked out!")
 	return 0
 
 def GUI_handle_manual_entry_button(button):
-	timein = manual_timein.get_text()
-	timeout = manual_timeout.get_text()
-	date = manual_timeout.get_text()
+	scan_input = input_box.get_text()
+	project = get_project_text()
+	timein_input = manual_timein.get_text()
+	timeout_input = manual_timeout.get_text()
+	date = manual_date.get_text()
 
+	if (scan_input == ""):
+		set_message_label("INPUT ERROR: Please swipe your card and try again")
+		return -1
+	if (project == ""):
+		set_message_label("INPUT ERROR: Please select a project and try again")
+		return -1
+	if (timein_input == ""):
+		set_message_label("INPUT ERROR: Please set the time you checked in and try again")
+		return -1
+	if (timeout_input == ""):
+		set_message_label("INPUT ERROR: Please set the time you checked out and try again")
+		return -1
+	if (date == ""):
+		set_message_label("INPUT ERROR: Please set the date and try again")
+		return -1
+
+	student_id, first_name, last_name = split_scan_input(scan_input)
+	if (student_id == "" or first_name == "" or last_name == ""):
+		set_message_label("INPUT ERROR: Input read from card swipe is invalid, please clear the input field and try again")
+		input_box.set_text("")
+		return -1
+
+	time_in = datetime.datetime.strptime(timein_input, "%I:%M%p").strftime("%H:%M:00")
+	time_out = datetime.datetime.strptime(timeout_input, "%I:%M%p").strftime("%H:%M:00")
+	day, month, year = date.split("/")
+	timestamp_in = "%s-%s-%s %s" % (year, month, day, time_in)
+	timestamp_out = "%s-%s-%s %s" % (year, month, day, time_out)
+
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp_in, project, "IN")
+	database_interface.store_timestamp(student_id, first_name, last_name, timestamp_out, project, "OUT")
 
 def gtk_style():
 	css=b"""
@@ -108,6 +134,7 @@ def init():
 	global manual_timein
 	global manual_timeout
 	global manual_date
+	global message_label
 
 	gtk_style()
 	# Define widgets
@@ -151,6 +178,11 @@ def init():
 	manual_entry_button = Gtk.Button.new_with_label("Manual Entry")
 	manual_entry_button.set_margin_right(s_width/11)
 
+	checkout_button.set_margin_top(s_height/24)
+	checkout_button.set_margin_left(s_width/16)
+
+	message_label = Gtk.Label()
+
 	# Setup project list
 	append_projects(project_list)
 
@@ -165,18 +197,21 @@ def init():
 	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/450)
 	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/450)
 	widget_grid.attach(checkin_button, 0, 2, (s_width/400), s_height/450)
-	widget_grid.attach(checkout_button, 2, 2, (s_width/400), s_height/450)
-	widget_grid.attach(manual_timein, 0, 4, s_width/600, s_height/450)
-	widget_grid.attach(manual_timeout, 2, 4, s_width/600, s_height/450)
-	widget_grid.attach(manual_date, 4, 4, s_width/600, s_height/450)
-	widget_grid.attach(manual_entry_button, 2, 6, s_width/400, s_height/450)
+	widget_grid.attach(checkout_button, 3, 2, (s_width/400), s_height/450)
+	widget_grid.attach(manual_timein, 0, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_timeout, 4, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_date, 8, 4, s_width/400, s_height/450)
+	widget_grid.attach(manual_entry_button, 4, 5, s_width/400, s_height/450)
+	widget_grid.attach(message_label, 0, 7, 10, 10)
 
 	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
-	checkin_button.connect("clicked", GUI_handle_checkin_button) # handles button press event
-	checkout_button.connect("clicked", GUI_handle_checkout_button) # handles button press event
+	checkin_button.connect("clicked", GUI_handle_check_in_out_buttons, "IN") # handles button press event
+	checkout_button.connect("clicked", GUI_handle_check_in_out_buttons, "OUT") # handles button press event
+	manual_entry_button.connect("clicked", GUI_handle_manual_entry_button) # handles button press event
 
 	win.fullscreen() # Automatically sets the window as fullscreen
 	win.show_all()
 	checkin_button.grab_focus()
+
 	Gtk.main() # This is the main loop that handles all the events above
