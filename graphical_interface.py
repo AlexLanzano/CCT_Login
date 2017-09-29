@@ -57,8 +57,11 @@ def GUI_handle_check_in_out_buttons(button, in_or_out):
 	response = database_interface.is_checkedin(student_id)
 	if (response == -1):
 		GUI_handle_checkout_button(button);
-	if (response == False):
+	if (response == False and in_or_or == "OUT"):
 		set_message_label("DATABASE ERROR: You are already checked out.")
+		return -1
+	if (response == True and in_or_out == "IN"):
+		set_message_label("DATABASE ERROR: You are already cheacked in")
 		return -1
 
 	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
