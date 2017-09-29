@@ -147,22 +147,22 @@ def init():
 
 	input_box = Gtk.Entry()
 	input_box.set_visibility(False)
-	input_box.set_margin_bottom(20)
-	input_box.set_margin_right(s_width/24)
+	#input_box.set_margin_bottom(20)
+	#input_box.set_margin_right(s_width/24)
 	input_box.set_placeholder_text("Swipe your ID")
 
 	project_list = Gtk.ListStore(str)
 	project_box = Gtk.ComboBox.new_with_model(project_list)
-	project_box.set_margin_top(s_height/64)
-	project_box.set_margin_right(s_width/24)
+	#project_box.set_margin_top(s_height/64)
+	#project_box.set_margin_right(s_width/24)
 
 	checkin_button = Gtk.Button.new_with_label("Check In")
-	checkin_button.set_margin_top(s_height/24)
-	checkin_button.set_margin_left(s_width/16)
+	#checkin_button.set_margin_top(s_height/24)
+	#checkin_button.set_margin_left(s_width/16)
 
 	checkout_button = Gtk.Button.new_with_label("Check Out")
-	checkout_button.set_margin_top(s_height/24)
-	checkout_button.set_margin_left(s_width/14)
+	#checkout_button.set_margin_top(s_height/24)
+	#checkout_button.set_margin_left(s_width/16)
 
 
 	manual_timein = Gtk.Entry()
@@ -176,10 +176,7 @@ def init():
 	#manual_date.set_alignment(1)
 
 	manual_entry_button = Gtk.Button.new_with_label("Manual Entry")
-	manual_entry_button.set_margin_right(s_width/11)
-
-	checkout_button.set_margin_top(s_height/24)
-	checkout_button.set_margin_left(s_width/16)
+	#manual_entry_button.set_margin_right(s_width/11)
 
 	message_label = Gtk.Label()
 
@@ -193,16 +190,16 @@ def init():
 
 	# Setup where buttons and input boxes on screen
 	win.add(widget_fixed)
-	widget_fixed.put(widget_grid, (s_width/2) - (s_width/5), s_height/2)
-	widget_grid.attach(input_box, 0, 0, (s_width/200), s_height/450)
-	widget_grid.attach(project_box, 0, 1, (s_width/200), s_height/450)
-	widget_grid.attach(checkin_button, 0, 2, (s_width/400), s_height/450)
-	widget_grid.attach(checkout_button, 3, 2, (s_width/400), s_height/450)
-	widget_grid.attach(manual_timein, 0, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_timeout, 4, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_date, 8, 4, s_width/400, s_height/450)
-	widget_grid.attach(manual_entry_button, 4, 5, s_width/400, s_height/450)
-	widget_grid.attach(message_label, 0, 7, 10, 10)
+	widget_fixed.put(widget_grid, (s_width/6) + s_width/18, s_height/3)
+	widget_grid.attach(input_box, 1, 1, 10, 1)
+	widget_grid.attach(project_box, 1, 2, 10, 1)
+	widget_grid.attach(checkin_button, 2, 3, 4, 1)
+	widget_grid.attach(checkout_button, 6, 3, 4, 1)
+	widget_grid.attach(manual_timein, 3, 5, 2, 1)
+	widget_grid.attach(manual_timeout, 5, 5, 2, 1)
+	widget_grid.attach(manual_date, 7, 5, 2, 1)
+	widget_grid.attach(manual_entry_button, 2, 6, 8, 1)
+	widget_grid.attach(message_label, 1, 0, 8, 1)
 
 	# Tell gtk how to handle events
 	win.connect("delete-event", Gtk.main_quit) # Closes window when the X is pressed
@@ -210,8 +207,8 @@ def init():
 	checkout_button.connect("clicked", GUI_handle_check_in_out_buttons, "OUT") # handles button press event
 	manual_entry_button.connect("clicked", GUI_handle_manual_entry_button) # handles button press event
 
-	win.fullscreen() # Automatically sets the window as fullscreen
 	win.show_all()
 	checkin_button.grab_focus()
+	win.fullscreen()
 
 	Gtk.main() # This is the main loop that handles all the events above
