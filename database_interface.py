@@ -1,5 +1,7 @@
 import MySQLdb
 import time
+import datetime
+
 
 def table_exists():
 	try:
@@ -11,12 +13,12 @@ def table_exists():
 		else:
 			return False
 	except:
-		init()
+		connect()
 
 def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out):
 	try:
 		cursor = db.cursor()
-		timestamp = time.ctime()
+		timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		command = """INSERT INTO TIMESHEET (
                      STUDENT_ID,
                      FIRST_NAME,
@@ -35,7 +37,7 @@ def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or
 			db.rollback()
 
 	except:
-		init()
+		connect()
 		store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
 
 def is_checkedin(student_id):
@@ -49,10 +51,12 @@ def is_checkedin(student_id):
 		else:
 			return True
 	except:
-		init()
-		return -1
+		if (connect() == False):
+			return -1
+		else:
+			return 1
 
-def init():
+def connect():
 	global db
 	sql_config = open("sql.conf", "r")
 	host = sql_config.readline().rstrip()
@@ -64,6 +68,12 @@ def init():
 		db = MySQLdb.connect(host, user, password, name)
 	except MySQLdb.Error:
 		return False
+	return True
+
+def init():
+	if (connect() == False):
+		return False
+
 	cursor = db.cursor()
 	if (table_exists() == False):
 		command = """CREATE TABLE TIMESHEET (

@@ -56,7 +56,10 @@ def GUI_handle_check_in_out_buttons(button, in_or_out):
 
 	response = database_interface.is_checkedin(student_id)
 	if (response == -1):
-		GUI_handle_checkout_button(button);
+		set_message_label("CONNECTION ERROR: Failed to reconnect to database. Please check your connection.");
+		return -1
+	if (response == 1):
+		GUI_handle_check_in_out_buttons(button, in_or_out)
 	if (response == False and in_or_out == "OUT"):
 		set_message_label("DATABASE ERROR: You are already checked out.")
 		return -1
