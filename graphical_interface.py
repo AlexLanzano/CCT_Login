@@ -223,6 +223,6 @@ def init():
 
 	win.show_all()
 	checkin_button.grab_focus()
-	#win.fullscreen()
+	win.fullscreen()
 
 	Gtk.main() # This is the main loop that handles all the events above
