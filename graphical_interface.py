@@ -17,7 +17,7 @@ def set_message_label(message):
 def append_projects(project_list):
 	projects_file = open("projects.txt", "r")
 	for line in projects_file:
-		project_list.append([line])
+		project_list.append([line.rstrip()])
 
 def get_project_text():
 	index = project_box.get_active()
@@ -36,6 +36,7 @@ def split_scan_input(scan_input):
 	return student_id, first_name, last_name
 
 def GUI_handle_check_in_out_buttons(button, in_or_out):
+	print("1")
 	scan_input = input_box.get_text()
 	project = get_project_text()
 
@@ -53,8 +54,9 @@ def GUI_handle_check_in_out_buttons(button, in_or_out):
 		set_message_label("INPUT ERROR: Invalid input from card reader. Reswipe your card and try again")
 		input_box.set_text("")
 		return -1
-
+	print("2")
 	response = database_interface.is_checkedin(student_id)
+	print("3")
 	if (response == -1):
 		set_message_label("CONNECTION ERROR: Failed to reconnect to database. Please check your connection.");
 		return -1
@@ -68,10 +70,12 @@ def GUI_handle_check_in_out_buttons(button, in_or_out):
 		return -1
 
 	if (response == True and in_or_out == "IN"):
-		set_message_label("DATABASE ERROR: You are already cheacked in")
+		set_message_label("DATABASE ERROR: You are already checked in")
 		return -1
+	print("4")
 
 	database_interface.store_timestamp(student_id, first_name, last_name, 0, project, in_or_out)
+	print("5")
 
 	input_box.set_text("")
 
@@ -219,6 +223,6 @@ def init():
 
 	win.show_all()
 	checkin_button.grab_focus()
-	win.fullscreen()
+	#win.fullscreen()
 
 	Gtk.main() # This is the main loop that handles all the events above

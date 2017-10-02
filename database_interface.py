@@ -2,7 +2,6 @@ import MySQLdb
 import time
 import datetime
 
-
 def table_exists():
 	try:
 		cursor = db.cursor()
@@ -18,7 +17,10 @@ def table_exists():
 def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out):
 	try:
 		cursor = db.cursor()
-		timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+		if (timestamp == 0):
+			timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 		command = """INSERT INTO TIMESHEET (
                      STUDENT_ID,
                      FIRST_NAME,
@@ -37,24 +39,21 @@ def store_timestamp(student_id, first_name, last_name, timestamp, project, in_or
 			db.rollback()
 
 	except:
+		print("retrying connection")
 		connect()
 		store_timestamp(student_id, first_name, last_name, timestamp, project, in_or_out)
 
 def is_checkedin(student_id):
-	try:
-		cursor = db.cursor()
-		command = "SELECT * FROM TIMESHEET WHERE STUDENT_ID = '%s'" % (student_id)
-		cursor.execute(command)
-		length = len(cursor.fetchall())
-		if (length % 2 == 0):
-			return False
-		else:
-			return True
-	except:
-		if (connect() == False):
-			return -1
-		else:
-			return 1
+	if (connect() == False):
+		return -1
+	cursor = db.cursor()
+	command = "SELECT * FROM TIMESHEET WHERE STUDENT_ID = '%s'" % (student_id)
+	cursor.execute(command)
+	length = len(cursor.fetchall())
+	if (length % 2 == 0):
+		return False
+	else:
+		return True
 
 def connect():
 	global db
@@ -64,6 +63,7 @@ def connect():
 	password = sql_config.readline().rstrip()
 	name = sql_config.readline().rstrip()
 	sql_config.close()
+	print("trying to connect")
 	try:
 		db = MySQLdb.connect(host, user, password, name)
 	except MySQLdb.Error:
@@ -86,5 +86,4 @@ def init():
                      )"""
 
 		cursor.execute(command)
-
 	return True

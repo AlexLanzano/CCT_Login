@@ -21,3 +21,9 @@ project 2
 project 3
 project 4
 ```
+
+
+#### Usage:
+```
+python3 main.py
+```
