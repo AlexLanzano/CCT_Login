@@ -55,4 +55,9 @@ def main(first, last, project):
 
 	print(first + " " + last + " has worked a total of " + str(hours_worked) + " hours " + str(min_worked) + " minutes and " + str(sec_worked) + " seconds on " + project)
 
-main(sys.argv[1],sys.argv[2],sys.argv[3])
+for i in range(3, len(sys.argv)):
+	if i == 3:
+		project_name = sys.argv[i]
+	else:
+		project_name = project_name + " " + sys.argv[i]
+main(sys.argv[1],sys.argv[2],project_name)
